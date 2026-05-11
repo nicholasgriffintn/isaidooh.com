@@ -18,8 +18,22 @@ test("public page loads external assets instead of inline styles and scripts", (
 
 test("rickroll payoff uses the intended prank video", () => {
   assert.match(js, /const RICKROLL_VIDEO_ID = "Eune-z_Zjww";/);
+  assert.match(js, /autoplay=1/);
+  assert.match(js, /playsinline=1/);
   assert.doesNotMatch(js, /dQw4w9WgXcQ/);
   assert.doesNotMatch(js, /embed\.music\.apple\.com/);
+});
+
+test("rickroll video starts inside the user activation event", () => {
+  assert.match(js, /triggerRickroll\(\);/);
+  assert.doesNotMatch(js, /setTimeout\(triggerRickroll/);
+});
+
+test("page warms the YouTube player before the prank is triggered", () => {
+  assert.match(html, /<link rel="preconnect" href="https:\/\/www\.youtube\.com" \/>/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/i\.ytimg\.com" \/>/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/s\.ytimg\.com" \/>/);
+  assert.match(html, /<link rel="preload" as="image" href="https:\/\/i\.ytimg\.com\/vi\/Eune-z_Zjww\/hqdefault\.jpg" \/>/);
 });
 
 test("rickroll video keeps the vertical shorts frame", () => {

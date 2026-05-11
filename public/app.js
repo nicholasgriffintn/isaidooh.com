@@ -6,7 +6,7 @@ const RICK_TRIGGER_MOVES = {
 };
 
 const RICKROLL_VIDEO_ID = "Eune-z_Zjww";
-const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0`;
+const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0`;
 
 const state = {
   gridSize: 3,
@@ -159,7 +159,7 @@ function handleTileClick(idx) {
 
   if (state.moveCount >= state.triggerMove && !state.rickrolled) {
     state.rickrolled = true;
-    setTimeout(triggerRickroll, 300);
+    triggerRickroll();
   }
 }
 
