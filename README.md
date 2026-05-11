@@ -9,8 +9,8 @@ A sliding tile puzzle game deployed on Cloudflare Workers. Totally normal. Just 
 ## Local development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Deploy
@@ -27,7 +27,7 @@ You'll need these secrets in your GitHub repo:
 Or deploy manually:
 
 ```bash
-npm run deploy
+pnpm deploy
 ```
 
 ## Custom domain
@@ -38,5 +38,5 @@ Point `isaidooh.com` to your Worker in the Cloudflare dashboard under **Workers 
 
 - Cloudflare Workers (static asset serving via KV)
 - Vanilla HTML/CSS/JS — zero dependencies at runtime
-- Wrangler v3
+- Wrangler v4
 - GitHub Actions for CI/CD

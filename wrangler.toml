@@ -1,6 +1,0 @@
-name = "isaidooh"
-compatibility_date = "2024-01-01"
-main = "src/worker.js"
-
-[site]
-bucket = "./public"

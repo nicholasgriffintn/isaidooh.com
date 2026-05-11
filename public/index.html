@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>isaidooh.com — Brain Teaser Challenge 🧩</title>
+  <title>isaidooh.com - Brain Teaser Challenge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
@@ -280,11 +280,6 @@
       border-radius: 12px;
     }
 
-    /* Hidden audio element */
-    #apple-audio {
-      display: none;
-    }
-
     .rickroll-text {
       font-family: 'Fredoka One', cursive;
       font-size: clamp(1.5rem, 5vw, 2.5rem);
@@ -362,18 +357,6 @@
   </div>
 </div>
 
-<!-- Hidden Apple Music embed for audio backup -->
-<div id="apple-audio">
-  <iframe
-    id="apple-frame"
-    allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-    height="175"
-    style="width:100%;overflow:hidden;background:transparent;"
-    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
-    src="https://embed.music.apple.com/gb/album/turn-the-lights-off-radio-edit/348594096?i=348594111&theme=dark"
-  ></iframe>
-</div>
-
 <script>
   // ─── CONFIG ───────────────────────────────────────────────────────────────
   const RICK_TRIGGER_MOVES = {
@@ -381,8 +364,8 @@
     4: () => Math.floor(Math.random() * 8) + 5,   // triggers between move 5–12
   };
 
-  // YouTube Shorts embed — autoplay, muted initially then we un-mute via JS
-  const YT_EMBED = "https://www.youtube.com/embed/Eune-z_Zjww?autoplay=1&mute=0&controls=0&loop=1&playlist=Eune-z_Zjww&rel=0";
+  const RICKROLL_VIDEO_ID = "Eune-z_Zjww";
+  const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0`;
 
   // ─── STATE ────────────────────────────────────────────────────────────────
   let gridSize = 3;
@@ -403,14 +386,13 @@
   const progressBar  = document.getElementById('progress-bar');
   const rickrollEl   = document.getElementById('rickroll');
   const ytFrame      = document.getElementById('yt-frame');
-  const appleFrame   = document.getElementById('apple-frame');
 
   // ─── DIFFICULTY BUTTONS ──────────────────────────────────────────────────
   document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      gridSize = parseInt(btn.dataset.size);
+      gridSize = Number.parseInt(btn.dataset.size, 10);
     });
   });
 
@@ -431,6 +413,7 @@
     moveCount = 0;
     secondsElapsed = 0;
     moveCountEl.textContent = '0';
+    timerEl.textContent = '0s';
     clearInterval(timerInterval);
     startTimer();
     triggerMove = RICK_TRIGGER_MOVES[gridSize]();
@@ -443,6 +426,8 @@
     moveCount = 0;
     secondsElapsed = 0;
     rickrolled = false;
+    moveCountEl.textContent = '0';
+    timerEl.textContent = '0s';
     triggerMove = RICK_TRIGGER_MOVES[gridSize]();
     progressBar.style.width = '0%';
 
@@ -450,7 +435,8 @@
     const gridPx = Math.min(window.innerWidth - 60, 460);
     puzzleGrid.style.width = gridPx + 'px';
 
-    tiles = Array.from({ length: gridSize * gridSize }, (_, i) => i);
+    tiles = [...Array.from({ length: gridSize * gridSize - 1 }, (_, i) => i + 1), 0];
+    emptyIndex = tiles.length - 1;
     shuffleTiles();
     renderGrid();
 
@@ -460,13 +446,18 @@
 
   function shuffleTiles() {
     // Perform random valid moves to guarantee solvability
-    emptyIndex = tiles.indexOf(0);
+    let previousEmptyIndex = -1;
     for (let i = 0; i < 200; i++) {
-      const neighbours = getNeighbours(emptyIndex);
+      let neighbours = getNeighbours(emptyIndex);
+      if (neighbours.length > 1) {
+        neighbours = neighbours.filter(idx => idx !== previousEmptyIndex);
+      }
       const swap = neighbours[Math.floor(Math.random() * neighbours.length)];
       [tiles[emptyIndex], tiles[swap]] = [tiles[swap], tiles[emptyIndex]];
+      previousEmptyIndex = emptyIndex;
       emptyIndex = swap;
     }
+    if (isSolved()) shuffleTiles();
   }
 
   function getNeighbours(idx) {
@@ -487,9 +478,7 @@
       tile.className = 'tile' + (val === 0 ? ' empty' : '');
       if (val !== 0) {
         tile.textContent = val;
-        if (val === idx + 1 || (val === gridSize * gridSize && idx === gridSize * gridSize - 1)) {
-          // correct position styling — subtle
-        }
+        if (val === idx + 1) tile.classList.add('correct');
         tile.addEventListener('click', () => handleTileClick(idx));
       }
       puzzleGrid.appendChild(tile);
@@ -523,6 +512,10 @@
     progressBar.style.width = Math.round((correct / total) * 100) + '%';
   }
 
+  function isSolved() {
+    return tiles.every((val, idx) => idx === tiles.length - 1 ? val === 0 : val === idx + 1);
+  }
+
   // ─── TIMER ────────────────────────────────────────────────────────────────
   function startTimer() {
     timerInterval = setInterval(() => {
@@ -541,11 +534,7 @@
     // Show overlay
     rickrollEl.classList.add('active');
 
-    // Also fire Apple Music embed for audio (belt + braces)
-    // Apple Music iframe is already loaded in background
-    try {
-      appleFrame.src = appleFrame.src; // re-trigger
-    } catch(e) {}
+    rickrollClicks = 0;
   }
 
   // Close rickroll on click (optional escape hatch after 5s, for good UX)
