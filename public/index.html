@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>isaidooh.com — Brain Teaser Challenge 🧩</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e17;
+      --card: #1a1828;
+      --accent: #ff8906;
+      --accent2: #e53170;
+      --text: #fffffe;
+      --muted: #a7a9be;
+      --tile: #232136;
+      --tile-border: #3d3a5a;
+      --tile-hover: #2d2a4a;
+      --correct: #3da34e;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(229,49,112,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 70%, rgba(255,137,6,0.10) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ─── HEADER ─── */
+    .logo {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 0.02em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .tagline {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ─── INTRO CARD ─── */
+    .intro-card {
+      background: var(--card);
+      border: 1px solid var(--tile-border);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    .intro-card h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .intro-card p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-card .difficulty {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .diff-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      border: 2px solid var(--tile-border);
+      background: var(--tile);
+      color: var(--muted);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .diff-btn:hover, .diff-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(255,137,6,0.08);
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(229,49,112,0.35);
+    }
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(229,49,112,0.5);
+    }
+    .start-btn:active { transform: translateY(0); }
+
+    /* ─── GAME AREA ─── */
+    #game-area { display: none; width: 100%; max-width: 520px; }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding: 0 0.25rem;
+    }
+
+    .game-header h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: var(--accent);
+    }
+
+    .stats {
+      display: flex;
+      gap: 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .stats span { display: flex; align-items: center; gap: 0.3rem; }
+    .stats .val { color: var(--text); }
+
+    /* ─── PUZZLE GRID ─── */
+    #puzzle-grid {
+      display: grid;
+      gap: 6px;
+      margin: 0 auto 1.25rem;
+      background: var(--card);
+      border: 1px solid var(--tile-border);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.4);
+    }
+
+    .tile {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tile);
+      border: 2px solid var(--tile-border);
+      border-radius: 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1rem, 4vw, 1.6rem);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      user-select: none;
+      color: var(--text);
+    }
+
+    .tile:hover { background: var(--tile-hover); border-color: var(--accent); }
+    .tile:active { transform: scale(0.96); }
+    .tile.empty {
+      background: rgba(255,137,6,0.05);
+      border: 2px dashed rgba(255,137,6,0.2);
+      cursor: default;
+    }
+    .tile.empty:hover { background: rgba(255,137,6,0.05); border-color: rgba(255,137,6,0.2); }
+    .tile.correct { border-color: var(--correct); color: var(--correct); }
+
+    .game-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: 2px solid var(--tile-border);
+      background: var(--tile);
+      color: var(--muted);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    .progress-bar-wrap {
+      margin-bottom: 1rem;
+      background: var(--tile);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ─── RICKROLL OVERLAY ─── */
+    #rickroll {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: flashIn 0.1s ease;
+    }
+    #rickroll.active { display: flex; }
+
+    @keyframes flashIn {
+      0% { opacity: 0; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    #rickroll-inner {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      padding: 0 1rem;
+    }
+
+    #yt-frame {
+      width: 100%;
+      aspect-ratio: 9/16;
+      max-height: 80vh;
+      border: none;
+      border-radius: 12px;
+    }
+
+    /* Hidden audio element */
+    #apple-audio {
+      display: none;
+    }
+
+    .rickroll-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: var(--accent);
+      text-align: center;
+      margin-top: 1.25rem;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { color: var(--accent); text-shadow: 0 0 20px rgba(255,137,6,0.5); }
+      to   { color: var(--accent2); text-shadow: 0 0 40px rgba(229,49,112,0.8); }
+    }
+
+    .rickroll-sub {
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 480px) {
+      .intro-card { padding: 1.75rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="logo">isaidooh.com</div>
+  <div class="tagline">The internet's most challenging puzzle</div>
+
+  <!-- Intro card -->
+  <div class="intro-card" id="intro-card">
+    <h2>🧩 Sliding Puzzle Challenge</h2>
+    <p>Think you're smart enough to solve this? Thousands of people have tried… and failed. Pick your difficulty and prove yourself.</p>
+    <div class="difficulty">
+      <button class="diff-btn active" data-size="3">Easy (3×3)</button>
+      <button class="diff-btn" data-size="4">Hard (4×4)</button>
+    </div>
+    <button class="start-btn" id="start-btn">Accept the Challenge 🔥</button>
+  </div>
+
+  <!-- Game area -->
+  <div id="game-area">
+    <div class="game-header">
+      <h3>🧩 Solve it!</h3>
+      <div class="stats">
+        <span>Moves: <span class="val" id="move-count">0</span></span>
+        <span>⏱ <span class="val" id="timer">0s</span></span>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div id="puzzle-grid"></div>
+    <div class="game-actions">
+      <button class="action-btn" id="shuffle-btn">🔀 Shuffle</button>
+      <button class="action-btn" id="back-btn">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- The Rickroll -->
+<div id="rickroll">
+  <div id="rickroll-inner">
+    <iframe
+      id="yt-frame"
+      src=""
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+    ></iframe>
+    <div class="rickroll-text">I SAID OOH 🎵</div>
+    <div class="rickroll-sub">you absolute legend, you actually fell for it</div>
+  </div>
+</div>
+
+<!-- Hidden Apple Music embed for audio backup -->
+<div id="apple-audio">
+  <iframe
+    id="apple-frame"
+    allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+    height="175"
+    style="width:100%;overflow:hidden;background:transparent;"
+    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+    src="https://embed.music.apple.com/gb/album/turn-the-lights-off-radio-edit/348594096?i=348594111&theme=dark"
+  ></iframe>
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────────────────────
+  const RICK_TRIGGER_MOVES = {
+    3: () => Math.floor(Math.random() * 6) + 4,   // triggers between move 4–9
+    4: () => Math.floor(Math.random() * 8) + 5,   // triggers between move 5–12
+  };
+
+  // YouTube Shorts embed — autoplay, muted initially then we un-mute via JS
+  const YT_EMBED = "https://www.youtube.com/embed/Eune-z_Zjww?autoplay=1&mute=0&controls=0&loop=1&playlist=Eune-z_Zjww&rel=0";
+
+  // ─── STATE ────────────────────────────────────────────────────────────────
+  let gridSize = 3;
+  let tiles = [];
+  let emptyIndex = 0;
+  let moveCount = 0;
+  let triggerMove = 5;
+  let timerInterval = null;
+  let secondsElapsed = 0;
+  let rickrolled = false;
+
+  // ─── DOM REFS ─────────────────────────────────────────────────────────────
+  const introCard    = document.getElementById('intro-card');
+  const gameArea     = document.getElementById('game-area');
+  const puzzleGrid   = document.getElementById('puzzle-grid');
+  const moveCountEl  = document.getElementById('move-count');
+  const timerEl      = document.getElementById('timer');
+  const progressBar  = document.getElementById('progress-bar');
+  const rickrollEl   = document.getElementById('rickroll');
+  const ytFrame      = document.getElementById('yt-frame');
+  const appleFrame   = document.getElementById('apple-frame');
+
+  // ─── DIFFICULTY BUTTONS ──────────────────────────────────────────────────
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      gridSize = parseInt(btn.dataset.size);
+    });
+  });
+
+  // ─── START GAME ──────────────────────────────────────────────────────────
+  document.getElementById('start-btn').addEventListener('click', () => {
+    introCard.style.display = 'none';
+    gameArea.style.display = 'block';
+    initPuzzle();
+  });
+
+  document.getElementById('back-btn').addEventListener('click', () => {
+    clearInterval(timerInterval);
+    gameArea.style.display = 'none';
+    introCard.style.display = 'block';
+  });
+
+  document.getElementById('shuffle-btn').addEventListener('click', () => {
+    moveCount = 0;
+    secondsElapsed = 0;
+    moveCountEl.textContent = '0';
+    clearInterval(timerInterval);
+    startTimer();
+    triggerMove = RICK_TRIGGER_MOVES[gridSize]();
+    shuffleTiles();
+    renderGrid();
+  });
+
+  // ─── PUZZLE LOGIC ─────────────────────────────────────────────────────────
+  function initPuzzle() {
+    moveCount = 0;
+    secondsElapsed = 0;
+    rickrolled = false;
+    triggerMove = RICK_TRIGGER_MOVES[gridSize]();
+    progressBar.style.width = '0%';
+
+    puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    const gridPx = Math.min(window.innerWidth - 60, 460);
+    puzzleGrid.style.width = gridPx + 'px';
+
+    tiles = Array.from({ length: gridSize * gridSize }, (_, i) => i);
+    shuffleTiles();
+    renderGrid();
+
+    clearInterval(timerInterval);
+    startTimer();
+  }
+
+  function shuffleTiles() {
+    // Perform random valid moves to guarantee solvability
+    emptyIndex = tiles.indexOf(0);
+    for (let i = 0; i < 200; i++) {
+      const neighbours = getNeighbours(emptyIndex);
+      const swap = neighbours[Math.floor(Math.random() * neighbours.length)];
+      [tiles[emptyIndex], tiles[swap]] = [tiles[swap], tiles[emptyIndex]];
+      emptyIndex = swap;
+    }
+  }
+
+  function getNeighbours(idx) {
+    const n = gridSize;
+    const row = Math.floor(idx / n), col = idx % n;
+    const nb = [];
+    if (row > 0)     nb.push(idx - n);
+    if (row < n - 1) nb.push(idx + n);
+    if (col > 0)     nb.push(idx - 1);
+    if (col < n - 1) nb.push(idx + 1);
+    return nb;
+  }
+
+  function renderGrid() {
+    puzzleGrid.innerHTML = '';
+    tiles.forEach((val, idx) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile' + (val === 0 ? ' empty' : '');
+      if (val !== 0) {
+        tile.textContent = val;
+        if (val === idx + 1 || (val === gridSize * gridSize && idx === gridSize * gridSize - 1)) {
+          // correct position styling — subtle
+        }
+        tile.addEventListener('click', () => handleTileClick(idx));
+      }
+      puzzleGrid.appendChild(tile);
+    });
+    updateProgress();
+  }
+
+  function handleTileClick(idx) {
+    if (rickrolled) return;
+    if (!getNeighbours(emptyIndex).includes(idx)) return;
+
+    [tiles[emptyIndex], tiles[idx]] = [tiles[idx], tiles[emptyIndex]];
+    emptyIndex = idx;
+    moveCount++;
+    moveCountEl.textContent = moveCount;
+    renderGrid();
+
+    // 🎣 THE TRAP — trigger after N moves, randomly mid-puzzle
+    if (moveCount >= triggerMove && !rickrolled) {
+      rickrolled = true;
+      setTimeout(triggerRickroll, 300);
+    }
+  }
+
+  function updateProgress() {
+    const total = gridSize * gridSize - 1;
+    let correct = 0;
+    tiles.forEach((val, idx) => {
+      if (val !== 0 && val === idx + 1) correct++;
+    });
+    progressBar.style.width = Math.round((correct / total) * 100) + '%';
+  }
+
+  // ─── TIMER ────────────────────────────────────────────────────────────────
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      secondsElapsed++;
+      timerEl.textContent = secondsElapsed + 's';
+    }, 1000);
+  }
+
+  // ─── RICKROLL ─────────────────────────────────────────────────────────────
+  function triggerRickroll() {
+    clearInterval(timerInterval);
+
+    // Load YouTube with autoplay
+    ytFrame.src = YT_EMBED;
+
+    // Show overlay
+    rickrollEl.classList.add('active');
+
+    // Also fire Apple Music embed for audio (belt + braces)
+    // Apple Music iframe is already loaded in background
+    try {
+      appleFrame.src = appleFrame.src; // re-trigger
+    } catch(e) {}
+  }
+
+  // Close rickroll on click (optional escape hatch after 5s, for good UX)
+  let rickrollClicks = 0;
+  rickrollEl.addEventListener('click', () => {
+    rickrollClicks++;
+    if (rickrollClicks >= 5) {
+      // After 5 taps they can escape — they've suffered enough
+      rickrollEl.classList.remove('active');
+      ytFrame.src = '';
+      gameArea.style.display = 'none';
+      introCard.style.display = 'block';
+      moveCount = 0;
+      rickrolled = false;
+      rickrollClicks = 0;
+    }
+  });
+</script>
+</body>
+</html>
