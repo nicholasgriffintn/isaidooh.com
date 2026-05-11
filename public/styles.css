@@ -1,0 +1,352 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f0e17;
+  --card: #1a1828;
+  --accent: #ff8906;
+  --accent2: #e53170;
+  --text: #fffffe;
+  --muted: #a7a9be;
+  --tile: #232136;
+  --tile-border: #3d3a5a;
+  --tile-hover: #2d2a4a;
+  --correct: #3da34e;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(229, 49, 112, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(255, 137, 6, 0.10) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.intro-card {
+  background: var(--card);
+  border: 1px solid var(--tile-border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.intro-card h2 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.intro-card p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.difficulty {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+}
+
+.diff-btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  border: 2px solid var(--tile-border);
+  background: var(--tile);
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diff-btn:hover,
+.diff-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(255, 137, 6, 0.08);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(229, 49, 112, 0.35);
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(229, 49, 112, 0.5);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+#game-area {
+  display: none;
+  width: 100%;
+  max-width: 520px;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.25rem;
+}
+
+.game-header h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+
+.stats {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stats .val {
+  color: var(--text);
+}
+
+#puzzle-grid {
+  display: grid;
+  gap: 6px;
+  margin: 0 auto 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--tile-border);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+}
+
+.tile {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tile);
+  border: 2px solid var(--tile-border);
+  border-radius: 10px;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1rem, 4vw, 1.6rem);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  user-select: none;
+  color: var(--text);
+}
+
+.tile:hover {
+  background: var(--tile-hover);
+  border-color: var(--accent);
+}
+
+.tile:active {
+  transform: scale(0.96);
+}
+
+.tile.empty {
+  background: rgba(255, 137, 6, 0.05);
+  border: 2px dashed rgba(255, 137, 6, 0.2);
+  cursor: default;
+}
+
+.tile.empty:hover {
+  background: rgba(255, 137, 6, 0.05);
+  border-color: rgba(255, 137, 6, 0.2);
+}
+
+.tile.correct {
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+.game-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: 2px solid var(--tile-border);
+  background: var(--tile);
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
+.progress-bar-wrap {
+  margin-bottom: 1rem;
+  background: var(--tile);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+#rickroll {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: flashIn 0.1s ease;
+}
+
+#rickroll.active {
+  display: flex;
+}
+
+@keyframes flashIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#rickroll-inner {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  padding: 0 1rem;
+}
+
+#yt-frame {
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 80vh;
+  border: none;
+  border-radius: 12px;
+}
+
+.rickroll-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  color: var(--accent);
+  text-align: center;
+  margin-top: 1.25rem;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(255, 137, 6, 0.5);
+  }
+
+  to {
+    color: var(--accent2);
+    text-shadow: 0 0 40px rgba(229, 49, 112, 0.8);
+  }
+}
+
+.rickroll-sub {
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+  .intro-card {
+    padding: 1.75rem 1.25rem;
+  }
+}

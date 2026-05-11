@@ -1,18 +1,10 @@
-import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
-import manifestJSON from "__STATIC_CONTENT_MANIFEST";
-
-const assetManifest = JSON.parse(manifestJSON);
-
 export default {
   async fetch(request, env, ctx) {
     try {
-      return await getAssetFromKV(
-        { request, waitUntil: ctx.waitUntil.bind(ctx) },
-        {
-          ASSET_NAMESPACE: env.__STATIC_CONTENT,
-          ASSET_MANIFEST: assetManifest,
-        }
-      );
+      const assetUrl = new URL(filePath, url.origin);
+      const assetRequest = new Request(assetUrl.toString(), request);
+
+      return env.ASSETS.fetch(assetRequest);
     } catch (e) {
       const url = new URL(request.url);
       if (url.pathname !== "/") {

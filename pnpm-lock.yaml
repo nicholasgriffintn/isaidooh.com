@@ -8,9 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@cloudflare/kv-asset-handler':
-        specifier: ^0.5.0
-        version: 0.5.0
       wrangler:
         specifier: ^4.90.0
         version: 4.90.0

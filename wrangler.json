@@ -8,7 +8,11 @@
   "placement": {
     "mode": "smart"
   },
-  "site": {
-    "bucket": "./public"
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./public"
+  },
+  "observability": {
+    "enabled": false
   }
 }
