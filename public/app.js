@@ -29,6 +29,9 @@ const elements = {
   progressBar: document.getElementById('progress-bar'),
   rickroll: document.getElementById('rickroll'),
   ytFrame: document.getElementById('yt-frame'),
+  scoreResult: document.getElementById('score-result'),
+  leaderboardList: document.getElementById('leaderboard-list'),
+  leaderboardRefresh: document.getElementById('leaderboard-refresh'),
   startButton: document.getElementById('start-btn'),
   backButton: document.getElementById('back-btn'),
   shuffleButton: document.getElementById('shuffle-btn'),
@@ -61,6 +64,7 @@ function startPuzzle() {
 function returnToIntro() {
   clearInterval(state.timerInterval);
   setPuzzleVisible(false);
+  loadLeaderboard();
 }
 
 function reshufflePuzzle() {
@@ -179,8 +183,10 @@ function startTimer() {
 function triggerRickroll() {
   clearInterval(state.timerInterval);
   elements.ytFrame.src = YT_EMBED;
+  elements.scoreResult.textContent = 'Submitting your legendary failure...';
   elements.rickroll.classList.add('active');
   state.rickrollClicks = 0;
+  submitScore();
 }
 
 function handleRickrollClick() {
@@ -194,6 +200,74 @@ function handleRickrollClick() {
   state.moveCount = 0;
   state.rickrolled = false;
   state.rickrollClicks = 0;
+  loadLeaderboard();
+}
+
+async function loadLeaderboard() {
+  elements.leaderboardList.innerHTML = '<li class="leaderboard-empty">Loading scores...</li>';
+
+  try {
+    const response = await fetch('/api/leaderboard');
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || 'Unable to load leaderboard');
+
+    renderLeaderboard(data.entries);
+  } catch {
+    elements.leaderboardList.innerHTML =
+      '<li class="leaderboard-empty">The leaderboard is having a moment.</li>';
+  }
+}
+
+async function submitScore() {
+  try {
+    const response = await fetch('/api/leaderboard', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        moves: state.moveCount,
+        seconds: state.secondsElapsed,
+        gridSize: state.gridSize,
+      }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || 'Unable to submit score');
+
+    elements.scoreResult.textContent = `${data.entry.displayName} scored ${data.entry.score} ooh points`;
+    renderLeaderboard(data.entries);
+  } catch {
+    elements.scoreResult.textContent = 'Your score escaped before the board noticed.';
+  }
+}
+
+function renderLeaderboard(entries) {
+  if (!entries || entries.length === 0) {
+    elements.leaderboardList.innerHTML =
+      '<li class="leaderboard-empty">No scores yet. Be the first on the board.</li>';
+    return;
+  }
+
+  elements.leaderboardList.replaceChildren(
+    ...entries.map((entry) => {
+      const item = document.createElement('li');
+      const name = document.createElement('span');
+      const score = document.createElement('span');
+      const detail = document.createElement('span');
+
+      item.className = 'leaderboard-entry';
+      name.className = 'leaderboard-name';
+      score.className = 'leaderboard-score';
+      detail.className = 'leaderboard-detail';
+
+      name.textContent = entry.displayName;
+      score.textContent = `${entry.score} pts`;
+      detail.textContent = `${entry.gridSize}x${entry.gridSize} - ${entry.moves} moves - ${entry.seconds}s`;
+
+      item.append(name, score, detail);
+      return item;
+    })
+  );
 }
 
 elements.difficultyButtons.forEach((button) => {
@@ -204,3 +278,6 @@ elements.startButton.addEventListener('click', startPuzzle);
 elements.backButton.addEventListener('click', returnToIntro);
 elements.shuffleButton.addEventListener('click', reshufflePuzzle);
 elements.rickroll.addEventListener('click', handleRickrollClick);
+elements.leaderboardRefresh.addEventListener('click', loadLeaderboard);
+
+loadLeaderboard();

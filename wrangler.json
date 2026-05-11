@@ -1,18 +1,26 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "isaidooh",
-  "main": "src/worker.js",
-  "compatibility_date": "2026-04-21",
-  "workers_dev": false,
-  "preview_urls": false,
-  "placement": {
-    "mode": "smart"
-  },
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./public"
-  },
-  "observability": {
-    "enabled": false
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "isaidooh",
+	"main": "src/worker.js",
+	"compatibility_date": "2026-04-21",
+	"workers_dev": false,
+	"preview_urls": false,
+	"placement": {
+		"mode": "smart"
+	},
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./public"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "isaidooh-leaderboard",
+			"migrations_dir": "migrations",
+			"database_id": "583e0b66-27c7-439c-a5ab-c34bea8f88f7"
+		}
+	],
+	"observability": {
+		"enabled": false
+	}
 }

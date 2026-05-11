@@ -5,6 +5,9 @@ const { test } = require("node:test");
 const html = readFileSync("public/index.html", "utf8");
 const css = readFileSync("public/styles.css", "utf8");
 const js = readFileSync("public/app.js", "utf8");
+const worker = readFileSync("src/worker.js", "utf8");
+const leaderboard = readFileSync("src/leaderboard.js", "utf8");
+const migration = readFileSync("migrations/0001_create_leaderboard.sql", "utf8");
 
 test("public page loads external assets instead of inline styles and scripts", () => {
   assert.match(html, /<link rel="stylesheet" href="\/styles\.css" \/>/);
@@ -36,4 +39,33 @@ test("puzzle starts from the solved board before shuffling", () => {
 test("visible counters reset when a new puzzle starts", () => {
   assert.match(js, /elements\.moveCount\.textContent = '0';/);
   assert.match(js, /elements\.timer\.textContent = '0s';/);
+});
+
+test("page renders a leaderboard backed by the API", () => {
+  assert.match(html, /id="leaderboard-list"/);
+  assert.match(html, /id="score-result"/);
+  assert.match(js, /fetch\('\/api\/leaderboard'\)/);
+  assert.match(js, /method: 'POST'/);
+  assert.match(js, /replaceChildren/);
+});
+
+test("worker routes leaderboard requests before static assets", () => {
+  assert.match(worker, /url\.pathname === "\/api\/leaderboard"/);
+  assert.match(worker, /handleLeaderboardRequest\(request, env\)/);
+  assert.match(worker, /env\.ASSETS\.fetch\(request\)/);
+  assert.doesNotMatch(worker, /filePath/);
+});
+
+test("leaderboard validation and storage use bounded server-owned values", () => {
+  assert.match(leaderboard, /VALID_GRID_SIZES = new Set\(\[3, 4\]\)/);
+  assert.match(leaderboard, /Moves must be an integer from 1 to 1000/);
+  assert.match(leaderboard, /Seconds must be an integer from 0 to 3600/);
+  assert.match(leaderboard, /displayName: generateDisplayName\(\)/);
+  assert.match(leaderboard, /score: calculateScore\(result\.value\)/);
+});
+
+test("leaderboard migration creates ranking constraints and index", () => {
+  assert.match(migration, /CREATE TABLE IF NOT EXISTS leaderboard_entries/);
+  assert.match(migration, /CHECK \(grid_size IN \(3, 4\)\)/);
+  assert.match(migration, /CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_rank/);
 });

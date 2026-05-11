@@ -23,6 +23,15 @@
       <button class="diff-btn" data-size="4">Hard (4×4)</button>
     </div>
     <button class="start-btn" id="start-btn">Accept the Challenge 🔥</button>
+    <section class="leaderboard" aria-labelledby="leaderboard-title">
+      <div class="leaderboard-header">
+        <h3 id="leaderboard-title">Leaderboard</h3>
+        <button class="leaderboard-refresh" id="leaderboard-refresh" type="button">Refresh</button>
+      </div>
+      <ol class="leaderboard-list" id="leaderboard-list">
+        <li class="leaderboard-empty">Loading scores…</li>
+      </ol>
+    </section>
   </div>
 
   <div id="game-area">
@@ -54,6 +63,7 @@
     ></iframe>
     <div class="rickroll-text">I SAID OOH 🎵</div>
     <div class="rickroll-sub">you absolute legend, you actually fell for it</div>
+    <div class="score-result" id="score-result">Submitting your legendary failure…</div>
   </div>
 </div>
 </body>

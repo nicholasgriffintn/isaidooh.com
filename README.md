@@ -10,12 +10,22 @@ A sliding tile puzzle game deployed on Cloudflare Workers. Totally normal. Just 
 
 ```bash
 pnpm install
+pnpm db:migrate:local
 pnpm dev
+```
+
+## Leaderboard database
+
+Scores are stored in Cloudflare D1. Create the database once, then add the returned `database_id` to `wrangler.json` if Wrangler requires it for your account:
+
+```bash
+pnpm wrangler d1 create isaidooh-leaderboard
+pnpm db:migrate:remote
 ```
 
 ## Deploy
 
-Deploys automatically via GitHub Actions on push to `main`.
+Deploys automatically via GitHub Actions on push to `main`. The workflow applies D1 migrations before deploying the Worker.
 
 You'll need these secrets in your GitHub repo:
 

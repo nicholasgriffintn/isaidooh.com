@@ -144,6 +144,89 @@ body::before {
   transform: translateY(0);
 }
 
+.leaderboard {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--tile-border);
+  text-align: left;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.leaderboard-header h3 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.leaderboard-refresh {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--tile-border);
+  border-radius: 999px;
+  background: var(--tile);
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.leaderboard-refresh:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.leaderboard-list {
+  display: grid;
+  gap: 0.5rem;
+  list-style-position: inside;
+}
+
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--tile-border);
+  border-radius: 8px;
+  background: rgba(35, 33, 54, 0.72);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.leaderboard-name {
+  color: var(--text);
+  font-weight: 900;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.leaderboard-score {
+  color: var(--accent);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.leaderboard-detail {
+  grid-column: 1 / -1;
+}
+
+.leaderboard-empty {
+  padding: 0.75rem;
+  border: 1px dashed var(--tile-border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  list-style: none;
+  text-align: center;
+}
+
 #game-area {
   display: none;
   width: 100%;
@@ -345,8 +428,23 @@ body::before {
   font-size: 0.9rem;
 }
 
+.score-result {
+  color: var(--text);
+  text-align: center;
+  margin-top: 0.75rem;
+  font-weight: 900;
+}
+
 @media (max-width: 480px) {
   .intro-card {
     padding: 1.75rem 1.25rem;
+  }
+
+  .leaderboard-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-score {
+    white-space: normal;
   }
 }
