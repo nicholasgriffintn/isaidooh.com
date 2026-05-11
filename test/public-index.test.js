@@ -5,12 +5,15 @@ const { test } = require("node:test");
 const html = readFileSync("public/index.html", "utf8");
 const css = readFileSync("public/styles.css", "utf8");
 const js = readFileSync("public/app.js", "utf8");
+const playerIdentity = readFileSync("public/player-identity.js", "utf8");
 const worker = readFileSync("src/worker.js", "utf8");
 const leaderboard = readFileSync("src/leaderboard.js", "utf8");
 const migration = readFileSync("migrations/0001_create_leaderboard.sql", "utf8");
+const playerMigration = readFileSync("migrations/0002_remember_leaderboard_players.sql", "utf8");
 
 test("public page loads external assets instead of inline styles and scripts", () => {
   assert.match(html, /<link rel="stylesheet" href="\/styles\.css" \/>/);
+  assert.match(html, /<script src="\/player-identity\.js" defer><\/script>/);
   assert.match(html, /<script src="\/app\.js" defer><\/script>/);
   assert.doesNotMatch(html, /<style>/);
   assert.doesNotMatch(html, /<script>\s*const /);
@@ -58,9 +61,32 @@ test("visible counters reset when a new puzzle starts", () => {
 test("page renders a leaderboard backed by the API", () => {
   assert.match(html, /id="leaderboard-list"/);
   assert.match(html, /id="score-result"/);
+  assert.match(html, /id="player-name"/);
+  assert.match(html, />Submit score<\/button>/);
+  assert.doesNotMatch(html, /Scores save to this browser/);
   assert.match(js, /fetch\('\/api\/leaderboard'\)/);
   assert.match(js, /method: 'POST'/);
+  assert.match(js, /playerId: player\.playerId/);
+  assert.match(js, /displayName: player\.displayName/);
   assert.match(js, /replaceChildren/);
+});
+
+test("browser stores a stable player identity with an editable display name", () => {
+  assert.match(playerIdentity, /STORAGE_KEY = 'isaidooh:player-identity'/);
+  assert.match(playerIdentity, /NAME_PREFIXES = \[/);
+  assert.match(playerIdentity, /NAME_NOUNS = \[/);
+  assert.match(playerIdentity, /generateDisplayName/);
+  assert.match(playerIdentity, /window\.crypto\.randomUUID/);
+  assert.match(playerIdentity, /updateDisplayName/);
+  assert.match(playerIdentity, /window\.PlayerIdentity/);
+});
+
+test("score submission is owned by the end-game name form", () => {
+  const triggerRickrollBody = js.match(/function triggerRickroll\(\) \{([\s\S]*?)\n\}/)?.[1] ?? "";
+
+  assert.match(triggerRickrollBody, /Enter your leaderboard name to submit your score/);
+  assert.doesNotMatch(triggerRickrollBody, /submitScore/);
+  assert.match(js, /elements\.playerForm\.addEventListener\('submit'/);
 });
 
 test("worker routes leaderboard requests before static assets", () => {
@@ -72,14 +98,29 @@ test("worker routes leaderboard requests before static assets", () => {
 
 test("leaderboard validation and storage use bounded server-owned values", () => {
   assert.match(leaderboard, /VALID_GRID_SIZES = new Set\(\[3, 4\]\)/);
+  assert.match(leaderboard, /PLAYER_ID_PATTERN/);
+  assert.match(leaderboard, /Display name must be 2 to 32 characters/);
   assert.match(leaderboard, /Moves must be an integer from 1 to 1000/);
   assert.match(leaderboard, /Seconds must be an integer from 0 to 3600/);
-  assert.match(leaderboard, /displayName: generateDisplayName\(\)/);
+  assert.match(leaderboard, /displayName: result\.value\.displayName/);
   assert.match(leaderboard, /score: calculateScore\(result\.value\)/);
+});
+
+test("leaderboard updates the same player only when the submitted score improves", () => {
+  assert.match(leaderboard, /getPlayerEntry\(db, submittedEntry\.playerId\)/);
+  assert.match(leaderboard, /isImprovedScore\(submittedEntry, existingEntry\)/);
+  assert.match(leaderboard, /updatePlayerEntry\(db, entry\)/);
+  assert.match(
+    leaderboard,
+    /updatePlayerDisplayName\(db, submittedEntry\.playerId, submittedEntry\.displayName\)/
+  );
 });
 
 test("leaderboard migration creates ranking constraints and index", () => {
   assert.match(migration, /CREATE TABLE IF NOT EXISTS leaderboard_entries/);
   assert.match(migration, /CHECK \(grid_size IN \(3, 4\)\)/);
   assert.match(migration, /CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_rank/);
+  assert.match(playerMigration, /player_id TEXT NOT NULL UNIQUE/);
+  assert.match(playerMigration, /'legacy-' \|\| id/);
+  assert.match(playerMigration, /ALTER TABLE leaderboard_entries_next RENAME TO leaderboard_entries/);
 });

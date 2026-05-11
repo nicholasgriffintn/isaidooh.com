@@ -18,6 +18,9 @@ const state = {
   secondsElapsed: 0,
   rickrolled: false,
   rickrollClicks: 0,
+  scoreSubmitted: false,
+  scoreSubmitting: false,
+  player: window.PlayerIdentity.getPlayerIdentity(),
 };
 
 const elements = {
@@ -32,11 +35,25 @@ const elements = {
   scoreResult: document.getElementById('score-result'),
   leaderboardList: document.getElementById('leaderboard-list'),
   leaderboardRefresh: document.getElementById('leaderboard-refresh'),
+  playerForm: document.getElementById('player-form'),
+  playerName: document.getElementById('player-name'),
+  playerSubmit: document.getElementById('player-submit'),
   startButton: document.getElementById('start-btn'),
   backButton: document.getElementById('back-btn'),
   shuffleButton: document.getElementById('shuffle-btn'),
   difficultyButtons: document.querySelectorAll('.diff-btn'),
 };
+
+function hydratePlayerForm() {
+  elements.playerName.value = state.player.displayName;
+}
+
+function savePlayerName() {
+  state.player = window.PlayerIdentity.updateDisplayName(elements.playerName.value);
+  elements.playerName.value = state.player.displayName;
+
+  return state.player;
+}
 
 function resetCounters() {
   state.moveCount = 0;
@@ -79,6 +96,8 @@ function reshufflePuzzle() {
 function initPuzzle() {
   resetCounters();
   state.rickrolled = false;
+  state.scoreSubmitted = false;
+  state.scoreSubmitting = false;
   state.triggerMove = RICK_TRIGGER_MOVES[state.gridSize]();
   elements.progressBar.style.width = '0%';
 
@@ -183,13 +202,17 @@ function startTimer() {
 function triggerRickroll() {
   clearInterval(state.timerInterval);
   elements.ytFrame.src = YT_EMBED;
-  elements.scoreResult.textContent = 'Submitting your legendary failure...';
+  hydratePlayerForm();
+  elements.playerSubmit.disabled = false;
+  elements.playerSubmit.textContent = 'Submit score';
+  elements.scoreResult.textContent = 'Enter your leaderboard name to submit your score.';
   elements.rickroll.classList.add('active');
   state.rickrollClicks = 0;
-  submitScore();
 }
 
-function handleRickrollClick() {
+function handleRickrollClick(event) {
+  if (event.target.closest('#player-form')) return;
+
   state.rickrollClicks++;
 
   if (state.rickrollClicks < 5) return;
@@ -200,6 +223,7 @@ function handleRickrollClick() {
   state.moveCount = 0;
   state.rickrolled = false;
   state.rickrollClicks = 0;
+  state.scoreSubmitting = false;
   loadLeaderboard();
 }
 
@@ -220,11 +244,21 @@ async function loadLeaderboard() {
 }
 
 async function submitScore() {
+  if (state.scoreSubmitting || state.scoreSubmitted) return;
+
+  const player = savePlayerName();
+  state.scoreSubmitting = true;
+  elements.playerSubmit.disabled = true;
+  elements.playerSubmit.textContent = 'Submitting...';
+  elements.scoreResult.textContent = 'Submitting your legendary failure...';
+
   try {
     const response = await fetch('/api/leaderboard', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
+        playerId: player.playerId,
+        displayName: player.displayName,
         moves: state.moveCount,
         seconds: state.secondsElapsed,
         gridSize: state.gridSize,
@@ -234,10 +268,18 @@ async function submitScore() {
 
     if (!response.ok) throw new Error(data.error || 'Unable to submit score');
 
-    elements.scoreResult.textContent = `${data.entry.displayName} scored ${data.entry.score} ooh points`;
+    state.scoreSubmitted = true;
+    elements.scoreResult.textContent = data.improved
+      ? `${data.entry.displayName} improved to ${data.entry.score} ooh points`
+      : `${data.entry.displayName}'s best is still ${data.entry.score} ooh points`;
+    elements.playerSubmit.textContent = 'Score submitted';
     renderLeaderboard(data.entries);
   } catch {
+    elements.playerSubmit.disabled = false;
+    elements.playerSubmit.textContent = 'Submit score';
     elements.scoreResult.textContent = 'Your score escaped before the board noticed.';
+  } finally {
+    state.scoreSubmitting = false;
   }
 }
 
@@ -279,5 +321,10 @@ elements.backButton.addEventListener('click', returnToIntro);
 elements.shuffleButton.addEventListener('click', reshufflePuzzle);
 elements.rickroll.addEventListener('click', handleRickrollClick);
 elements.leaderboardRefresh.addEventListener('click', loadLeaderboard);
+elements.playerForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  submitScore();
+});
 
+hydratePlayerForm();
 loadLeaderboard();

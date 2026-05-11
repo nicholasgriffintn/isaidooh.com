@@ -12,6 +12,7 @@
   <link rel="preload" as="image" href="https://i.ytimg.com/vi/Eune-z_Zjww/hqdefault.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
+  <script src="/player-identity.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -68,7 +69,21 @@
     ></iframe>
     <div class="rickroll-text">I SAID OOH 🎵</div>
     <div class="rickroll-sub">you absolute legend, you actually fell for it</div>
-    <div class="score-result" id="score-result">Submitting your legendary failure…</div>
+    <form class="player-form player-form-end" id="player-form">
+      <label for="player-name">Leaderboard name</label>
+      <div class="player-name-row">
+        <input
+          id="player-name"
+          name="player-name"
+          type="text"
+          maxlength="32"
+          autocomplete="nickname"
+          spellcheck="false"
+        />
+        <button class="player-save" id="player-submit" type="submit">Submit score</button>
+      </div>
+    </form>
+    <div class="score-result" id="score-result">Enter your leaderboard name to submit your score.</div>
   </div>
 </div>
 </body>
