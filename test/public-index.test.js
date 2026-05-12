@@ -61,6 +61,8 @@ test("rickroll payoff renders synced karaoke lyrics", () => {
   assert.match(css, /\.karaoke-stage/);
   assert.match(css, /animation: lyricRise/);
   assert.match(css, /animation: lyricSwap/);
+  assert.match(css, /animation: lyricPulse/);
+  assert.doesNotMatch(html, /class="rickroll-text"/);
   assert.match(js, /window\.KaraokeLyrics\.start\(elements\.ytFrame\)/);
   assert.match(js, /window\.KaraokeLyrics\.stop\(\)/);
 });
