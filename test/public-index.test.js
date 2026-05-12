@@ -41,7 +41,15 @@ test("page warms the YouTube player before the prank is triggered", () => {
 
 test("rickroll video keeps the vertical shorts frame", () => {
   assert.match(css, /aspect-ratio: 9\/16;/);
-  assert.match(css, /max-height: 80vh;/);
+  assert.match(css, /width: min\(100vw, 56\.25dvh\);/);
+  assert.match(css, /height: 100dvh;/);
+  assert.doesNotMatch(css, /max-height: 80vh;/);
+});
+
+test("rickroll payoff uses the app theme instead of a black surround", () => {
+  assert.match(css, /#rickroll::before/);
+  assert.match(css, /radial-gradient\(ellipse 58% 46% at 22% 18%, rgba\(229, 49, 112, 0\.22\)/);
+  assert.doesNotMatch(css, /background: #000;/);
 });
 
 test("puzzle starts from the solved board before shuffling", () => {

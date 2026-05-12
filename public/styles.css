@@ -154,7 +154,7 @@ body::before {
 
 .player-form-end {
   max-width: 460px;
-  margin: 1rem auto 0;
+  margin: 0.85rem auto 0;
 }
 
 .difficulty {
@@ -426,11 +426,24 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #000;
+  background:
+    radial-gradient(ellipse 58% 46% at 22% 18%, rgba(229, 49, 112, 0.22) 0%, transparent 68%),
+    radial-gradient(ellipse 52% 44% at 82% 78%, rgba(255, 137, 6, 0.18) 0%, transparent 70%),
+    linear-gradient(180deg, #161421 0%, var(--bg) 48%, #09080d 100%);
   flex-direction: column;
   align-items: center;
   justify-content: center;
   animation: flashIn 0.1s ease;
+}
+
+#rickroll::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(15, 14, 23, 0.88), rgba(15, 14, 23, 0.22) 28%, rgba(15, 14, 23, 0.22) 72%, rgba(15, 14, 23, 0.88)),
+    radial-gradient(circle at 50% 100%, rgba(229, 49, 112, 0.16), transparent 42%);
+  pointer-events: none;
 }
 
 #rickroll.active {
@@ -451,17 +464,45 @@ body::before {
 
 #rickroll-inner {
   position: relative;
-  width: 100%;
-  max-width: 800px;
-  padding: 0 1rem;
+  z-index: 1;
+  width: min(100vw, 56.25dvh);
+  height: 100dvh;
+  padding: 0;
+  box-shadow: 0 0 70px rgba(229, 49, 112, 0.16);
 }
 
 #yt-frame {
+  display: block;
   width: 100%;
+  height: 100%;
   aspect-ratio: 9/16;
-  max-height: 80vh;
   border: none;
-  border-radius: 12px;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.rickroll-panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: clamp(4rem, 11vh, 7.5rem) clamp(1rem, 5vw, 2.5rem) clamp(1rem, 3.5vh, 2rem);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 14, 23, 0) 0%,
+      rgba(15, 14, 23, 0.42) 24%,
+      rgba(26, 24, 40, 0.88) 58%,
+      rgba(15, 14, 23, 0.98) 100%
+    ),
+    radial-gradient(ellipse 90% 70% at 14% 88%, rgba(255, 137, 6, 0.18), transparent 62%),
+    radial-gradient(ellipse 88% 70% at 86% 86%, rgba(229, 49, 112, 0.24), transparent 64%);
+  pointer-events: none;
+}
+
+.rickroll-panel .player-form,
+.rickroll-panel .score-result {
+  pointer-events: auto;
 }
 
 .rickroll-text {
@@ -469,7 +510,6 @@ body::before {
   font-size: clamp(1.5rem, 5vw, 2.5rem);
   color: var(--accent);
   text-align: center;
-  margin-top: 1.25rem;
   animation: pulse 1s infinite alternate;
 }
 
@@ -495,7 +535,8 @@ body::before {
 .score-result {
   color: var(--text);
   text-align: center;
-  margin-top: 0.75rem;
+  margin: 0.65rem auto 0;
+  max-width: 460px;
   font-weight: 900;
 }
 
@@ -514,5 +555,14 @@ body::before {
 
   .leaderboard-score {
     white-space: normal;
+  }
+
+  .rickroll-panel {
+    padding: 3.25rem 0.85rem 0.85rem;
+  }
+
+  .rickroll-sub,
+  .score-result {
+    font-size: 0.82rem;
   }
 }
