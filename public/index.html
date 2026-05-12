@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <script src="/player-identity.js" defer></script>
+  <script src="/karaoke.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -67,6 +68,13 @@
       allow="autoplay; encrypted-media; picture-in-picture"
       allowfullscreen
     ></iframe>
+    <div class="karaoke-stage" id="karaoke-stage" aria-live="polite">
+      <div class="karaoke-now" id="karaoke-now">
+        <span class="karaoke-base" id="karaoke-base"></span>
+        <span class="karaoke-fill" id="karaoke-fill"></span>
+      </div>
+      <div class="karaoke-next" id="karaoke-next"></div>
+    </div>
     <div class="rickroll-panel">
       <div class="rickroll-text">I SAID OOH 🎵</div>
       <div class="rickroll-sub">you absolute legend, you actually fell for it</div>

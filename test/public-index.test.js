@@ -5,6 +5,7 @@ const { test } = require("node:test");
 const html = readFileSync("public/index.html", "utf8");
 const css = readFileSync("public/styles.css", "utf8");
 const js = readFileSync("public/app.js", "utf8");
+const karaoke = readFileSync("public/karaoke.js", "utf8");
 const playerIdentity = readFileSync("public/player-identity.js", "utf8");
 const worker = readFileSync("src/worker.js", "utf8");
 const leaderboard = readFileSync("src/leaderboard.js", "utf8");
@@ -14,6 +15,7 @@ const playerMigration = readFileSync("migrations/0002_remember_leaderboard_playe
 test("public page loads external assets instead of inline styles and scripts", () => {
   assert.match(html, /<link rel="stylesheet" href="\/styles\.css" \/>/);
   assert.match(html, /<script src="\/player-identity\.js" defer><\/script>/);
+  assert.match(html, /<script src="\/karaoke\.js" defer><\/script>/);
   assert.match(html, /<script src="\/app\.js" defer><\/script>/);
   assert.doesNotMatch(html, /<style>/);
   assert.doesNotMatch(html, /<script>\s*const /);
@@ -22,6 +24,7 @@ test("public page loads external assets instead of inline styles and scripts", (
 test("rickroll payoff uses the intended prank video", () => {
   assert.match(js, /const RICKROLL_VIDEO_ID = "Eune-z_Zjww";/);
   assert.match(js, /autoplay=1/);
+  assert.match(js, /enablejsapi=1/);
   assert.match(js, /playsinline=1/);
   assert.doesNotMatch(js, /dQw4w9WgXcQ/);
   assert.doesNotMatch(js, /embed\.music\.apple\.com/);
@@ -50,6 +53,28 @@ test("rickroll payoff uses the app theme instead of a black surround", () => {
   assert.match(css, /#rickroll::before/);
   assert.match(css, /radial-gradient\(ellipse 58% 46% at 22% 18%, rgba\(229, 49, 112, 0\.22\)/);
   assert.doesNotMatch(css, /background: #000;/);
+});
+
+test("rickroll payoff renders synced karaoke lyrics", () => {
+  assert.match(html, /id="karaoke-stage"/);
+  assert.match(html, /id="karaoke-fill"/);
+  assert.match(css, /\.karaoke-stage/);
+  assert.match(css, /animation: lyricRise/);
+  assert.match(css, /animation: lyricSwap/);
+  assert.match(js, /window\.KaraokeLyrics\.start\(elements\.ytFrame\)/);
+  assert.match(js, /window\.KaraokeLyrics\.stop\(\)/);
+});
+
+test("karaoke lyrics use YouTube time with a loop fallback", () => {
+  assert.match(karaoke, /https:\/\/www\.youtube\.com\/iframe_api/);
+  assert.match(karaoke, /getCurrentTime/);
+  assert.match(karaoke, /FALLBACK_LOOP_SECONDS = 56\.18/);
+  assert.match(karaoke, /findDisplayCue/);
+  assert.match(karaoke, /--word-progress/);
+  assert.match(karaoke, /text: 'I', start: 0\.259, end: 0\.359/);
+  assert.match(karaoke, /text: 'start\?', start: 55\.219, end: 56\.18/);
+  assert.match(karaoke, /I said ooh-ooh/);
+  assert.match(karaoke, /Should we let this start\?/);
 });
 
 test("puzzle starts from the solved board before shuffling", () => {

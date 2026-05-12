@@ -6,7 +6,7 @@ const RICK_TRIGGER_MOVES = {
 };
 
 const RICKROLL_VIDEO_ID = "Eune-z_Zjww";
-const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&playsinline=1&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0`;
+const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&playsinline=1&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
 
 const state = {
   gridSize: 3,
@@ -202,6 +202,7 @@ function startTimer() {
 function triggerRickroll() {
   clearInterval(state.timerInterval);
   elements.ytFrame.src = YT_EMBED;
+  window.KaraokeLyrics.start(elements.ytFrame);
   hydratePlayerForm();
   elements.playerSubmit.disabled = false;
   elements.playerSubmit.textContent = 'Submit score';
@@ -218,6 +219,7 @@ function handleRickrollClick(event) {
   if (state.rickrollClicks < 5) return;
 
   elements.rickroll.classList.remove('active');
+  window.KaraokeLyrics.stop();
   elements.ytFrame.src = '';
   setPuzzleVisible(false);
   state.moveCount = 0;

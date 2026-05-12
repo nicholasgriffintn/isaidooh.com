@@ -486,6 +486,7 @@ body::before {
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 3;
   padding: clamp(4rem, 11vh, 7.5rem) clamp(1rem, 5vw, 2.5rem) clamp(1rem, 3.5vh, 2rem);
   background:
     linear-gradient(
@@ -498,6 +499,134 @@ body::before {
     radial-gradient(ellipse 90% 70% at 14% 88%, rgba(255, 137, 6, 0.18), transparent 62%),
     radial-gradient(ellipse 88% 70% at 86% 86%, rgba(229, 49, 112, 0.24), transparent 64%);
   pointer-events: none;
+}
+
+.karaoke-stage {
+  position: absolute;
+  right: clamp(0.75rem, 3vw, 1.25rem);
+  bottom: clamp(14rem, 31vh, 20rem);
+  left: clamp(0.75rem, 3vw, 1.25rem);
+  z-index: 2;
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+
+.karaoke-stage.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.karaoke-now {
+  position: relative;
+  display: block;
+  justify-self: center;
+  max-width: 100%;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.35rem, 6.8vw, 2.6rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.karaoke-now.is-entering {
+  animation: lyricRise 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.karaoke-now.is-swapping {
+  animation: lyricSwap 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.karaoke-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.05em 0.24em;
+  overflow-wrap: anywhere;
+}
+
+.karaoke-fill {
+  display: none;
+}
+
+.karaoke-word {
+  --word-progress: 0%;
+  display: inline-block;
+  color: transparent;
+  background:
+    linear-gradient(
+      90deg,
+      var(--accent2) 0%,
+      var(--accent) var(--word-progress),
+      rgba(255, 255, 254, 0.92) var(--word-progress),
+      rgba(255, 255, 254, 0.92) 100%
+    );
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 3px 0 rgba(15, 14, 23, 0.78)) drop-shadow(0 0 18px rgba(229, 49, 112, 0.32));
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.karaoke-word.is-active {
+  transform: translateY(-0.04em) scale(1.04);
+  filter: drop-shadow(0 3px 0 rgba(15, 14, 23, 0.78)) drop-shadow(0 0 26px rgba(255, 137, 6, 0.56));
+}
+
+.karaoke-word.is-sung {
+  filter: drop-shadow(0 3px 0 rgba(15, 14, 23, 0.78)) drop-shadow(0 0 22px rgba(229, 49, 112, 0.5));
+}
+
+.karaoke-next {
+  color: rgba(255, 255, 254, 0.78);
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-shadow:
+    0 2px 12px rgba(15, 14, 23, 0.85),
+    0 0 18px rgba(255, 137, 6, 0.2);
+  transform: translateY(0);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.karaoke-now.is-swapping + .karaoke-next {
+  opacity: 0.45;
+  transform: translateY(0.4rem);
+}
+
+@keyframes lyricRise {
+  from {
+    opacity: 0;
+    transform: translateY(1.35rem) scale(0.96);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes lyricSwap {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.98);
+    filter: blur(3px);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translateY(-0.2rem) scale(1.015);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .rickroll-panel .player-form,
@@ -559,6 +688,18 @@ body::before {
 
   .rickroll-panel {
     padding: 3.25rem 0.85rem 0.85rem;
+  }
+
+  .karaoke-stage {
+    bottom: 15.75rem;
+  }
+
+  .karaoke-now {
+    font-size: clamp(1.15rem, 8vw, 1.85rem);
+  }
+
+  .karaoke-next {
+    font-size: 0.78rem;
   }
 
   .rickroll-sub,
