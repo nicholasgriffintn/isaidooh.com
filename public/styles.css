@@ -232,6 +232,38 @@ body::before {
   transform: translateY(0);
 }
 
+.assist-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.78rem 1rem;
+  border: 2px solid var(--tile-border);
+  border-radius: 12px;
+  background: rgba(35, 33, 54, 0.86);
+  color: var(--text);
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.15s;
+}
+
+.assist-btn:hover {
+  border-color: var(--correct);
+  color: var(--correct);
+  transform: translateY(-1px);
+}
+
+.assist-btn:active {
+  transform: translateY(0);
+}
+
+.assist-btn[hidden] {
+  display: none;
+}
+
 .leaderboard {
   margin-top: 1.75rem;
   padding-top: 1.5rem;

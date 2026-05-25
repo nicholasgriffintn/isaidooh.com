@@ -14,7 +14,12 @@ export async function handleLeaderboardRequest(request, env) {
   }
 
   if (request.method === "GET") {
-    return jsonResponse({ entries: await getLeaderboard(env.DB) });
+    const playerId = parsePlayerId(new URL(request.url).searchParams.get("playerId"));
+
+    return jsonResponse({
+      entries: await getLeaderboard(env.DB),
+      playerEntry: playerId ? await getPlayerEntry(env.DB, playerId) : null,
+    });
   }
 
   if (request.method === "POST") {

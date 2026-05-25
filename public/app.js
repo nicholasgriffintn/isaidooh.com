@@ -5,6 +5,8 @@ const RICK_TRIGGER_MOVES = {
   4: () => Math.floor(Math.random() * 8) + 5,
 };
 
+const DEFAULT_SHUFFLE_MOVES = 200;
+const ASSISTED_SHUFFLE_SPARE_MOVES = 1;
 const RICKROLL_VIDEO_ID = "Eune-z_Zjww";
 const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&playsinline=1&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
 
@@ -20,6 +22,8 @@ const state = {
   rickrollClicks: 0,
   scoreSubmitted: false,
   scoreSubmitting: false,
+  playerEntry: null,
+  assistedShuffle: false,
   player: window.PlayerIdentity.getPlayerIdentity(),
 };
 
@@ -38,6 +42,7 @@ const elements = {
   playerForm: document.getElementById('player-form'),
   playerName: document.getElementById('player-name'),
   playerSubmit: document.getElementById('player-submit'),
+  assistButton: document.getElementById('assist-btn'),
   startButton: document.getElementById('start-btn'),
   backButton: document.getElementById('back-btn'),
   shuffleButton: document.getElementById('shuffle-btn'),
@@ -46,6 +51,22 @@ const elements = {
 
 function hydratePlayerForm() {
   elements.playerName.value = state.player.displayName;
+}
+
+function hasLeaderboardUnlock() {
+  return Boolean(state.playerEntry || state.scoreSubmitted);
+}
+
+function updateAssistControls() {
+  const unlocked = hasLeaderboardUnlock();
+
+  elements.assistButton.hidden = !unlocked;
+}
+
+function getLeaderboardUrl() {
+  const leaderboardParams = new URLSearchParams({ playerId: state.player.playerId });
+
+  return `/api/leaderboard?${leaderboardParams}`;
 }
 
 function savePlayerName() {
@@ -74,6 +95,15 @@ function setDifficulty(button) {
 }
 
 function startPuzzle() {
+  state.assistedShuffle = false;
+  setPuzzleVisible(true);
+  initPuzzle();
+}
+
+function startAssistedPuzzle() {
+  if (!hasLeaderboardUnlock()) return;
+
+  state.assistedShuffle = true;
   setPuzzleVisible(true);
   initPuzzle();
 }
@@ -114,10 +144,16 @@ function initPuzzle() {
   startTimer();
 }
 
+function getShuffleMoves() {
+  if (!state.assistedShuffle) return DEFAULT_SHUFFLE_MOVES;
+
+  return Math.max(1, state.triggerMove - ASSISTED_SHUFFLE_SPARE_MOVES);
+}
+
 function shuffleTiles() {
   let previousEmptyIndex = -1;
 
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < getShuffleMoves(); i++) {
     let neighbours = getNeighbours(state.emptyIndex);
 
     if (neighbours.length > 1) {
@@ -207,6 +243,7 @@ function triggerRickroll() {
   elements.playerSubmit.disabled = false;
   elements.playerSubmit.textContent = 'Submit score';
   elements.scoreResult.textContent = 'Enter your leaderboard name to submit your score.';
+  updateAssistControls();
   elements.rickroll.classList.add('active');
   state.rickrollClicks = 0;
 }
@@ -233,11 +270,13 @@ async function loadLeaderboard() {
   elements.leaderboardList.innerHTML = '<li class="leaderboard-empty">Loading scores...</li>';
 
   try {
-    const response = await fetch('/api/leaderboard');
+    const response = await fetch(getLeaderboardUrl());
     const data = await response.json();
 
     if (!response.ok) throw new Error(data.error || 'Unable to load leaderboard');
 
+    state.playerEntry = data.playerEntry;
+    updateAssistControls();
     renderLeaderboard(data.entries);
   } catch {
     elements.leaderboardList.innerHTML =
@@ -271,10 +310,12 @@ async function submitScore() {
     if (!response.ok) throw new Error(data.error || 'Unable to submit score');
 
     state.scoreSubmitted = true;
+    state.playerEntry = data.entry;
     elements.scoreResult.textContent = data.improved
       ? `${data.entry.displayName} improved to ${data.entry.score} ooh points`
       : `${data.entry.displayName}'s best is still ${data.entry.score} ooh points`;
     elements.playerSubmit.textContent = 'Score submitted';
+    updateAssistControls();
     renderLeaderboard(data.entries);
   } catch {
     elements.playerSubmit.disabled = false;
@@ -319,6 +360,7 @@ elements.difficultyButtons.forEach((button) => {
 });
 
 elements.startButton.addEventListener('click', startPuzzle);
+elements.assistButton.addEventListener('click', startAssistedPuzzle);
 elements.backButton.addEventListener('click', returnToIntro);
 elements.shuffleButton.addEventListener('click', reshufflePuzzle);
 elements.rickroll.addEventListener('click', handleRickrollClick);
@@ -329,4 +371,5 @@ elements.playerForm.addEventListener('submit', (event) => {
 });
 
 hydratePlayerForm();
+updateAssistControls();
 loadLeaderboard();

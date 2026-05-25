@@ -51,7 +51,7 @@ test("rickroll video keeps the vertical shorts frame", () => {
 
 test("rickroll payoff uses the app theme instead of a black surround", () => {
   assert.match(css, /#rickroll::before/);
-  assert.match(css, /radial-gradient\(ellipse 58% 46% at 22% 18%, rgba\(229, 49, 112, 0\.22\)/);
+  assert.match(css, /radial-gradient\(\s*ellipse 58% 46% at 22% 18%,\s*rgba\(229, 49, 112, 0\.22\)/);
   assert.doesNotMatch(css, /background: #000;/);
 });
 
@@ -61,7 +61,7 @@ test("rickroll payoff renders synced karaoke lyrics", () => {
   assert.match(css, /\.karaoke-stage/);
   assert.match(css, /animation: lyricRise/);
   assert.match(css, /animation: lyricSwap/);
-  assert.match(css, /animation: lyricPulse/);
+  assert.match(css, /lyricPulse 1s infinite alternate/);
   assert.doesNotMatch(html, /class="rickroll-text"/);
   assert.match(js, /window\.KaraokeLyrics\.start\(elements\.ytFrame\)/);
   assert.match(js, /window\.KaraokeLyrics\.stop\(\)/);
@@ -97,13 +97,29 @@ test("page renders a leaderboard backed by the API", () => {
   assert.match(html, /id="leaderboard-list"/);
   assert.match(html, /id="score-result"/);
   assert.match(html, /id="player-name"/);
+  assert.match(html, /id="assist-btn"/);
+  assert.doesNotMatch(html, /id="assist-retry"/);
   assert.match(html, />Submit score<\/button>/);
   assert.doesNotMatch(html, /Scores save to this browser/);
-  assert.match(js, /fetch\('\/api\/leaderboard'\)/);
+  assert.match(js, /new URLSearchParams\(\{ playerId: state\.player\.playerId \}\)/);
+  assert.match(js, /fetch\(getLeaderboardUrl\(\)\)/);
   assert.match(js, /method: 'POST'/);
   assert.match(js, /playerId: player\.playerId/);
   assert.match(js, /displayName: player\.displayName/);
+  assert.match(js, /state\.playerEntry = data\.playerEntry/);
   assert.match(js, /replaceChildren/);
+});
+
+test("leaderboard players can choose an easier shuffle without bypassing the rickroll", () => {
+  assert.match(html, />Reduce difficulty<\/button>/);
+  assert.match(js, /ASSISTED_SHUFFLE_SPARE_MOVES = 1/);
+  assert.match(js, /function startAssistedPuzzle\(\) \{/);
+  assert.match(js, /if \(!hasLeaderboardUnlock\(\)\) return;/);
+  assert.match(js, /state\.assistedShuffle = true/);
+  assert.match(js, /state\.triggerMove - ASSISTED_SHUFFLE_SPARE_MOVES/);
+  assert.doesNotMatch(js, /Number\.POSITIVE_INFINITY/);
+  assert.doesNotMatch(js, /triggerRickroll\('solved'\)/);
+  assert.match(js, /event\.target\.closest\('#player-form'\)/);
 });
 
 test("browser stores a stable player identity with an editable display name", () => {
@@ -134,6 +150,8 @@ test("worker routes leaderboard requests before static assets", () => {
 test("leaderboard validation and storage use bounded server-owned values", () => {
   assert.match(leaderboard, /VALID_GRID_SIZES = new Set\(\[3, 4\]\)/);
   assert.match(leaderboard, /PLAYER_ID_PATTERN/);
+  assert.match(leaderboard, /new URL\(request\.url\)\.searchParams\.get\("playerId"\)/);
+  assert.match(leaderboard, /playerEntry: playerId \? await getPlayerEntry\(env\.DB, playerId\) : null/);
   assert.match(leaderboard, /Display name must be 2 to 32 characters/);
   assert.match(leaderboard, /Moves must be an integer from 1 to 1000/);
   assert.match(leaderboard, /Seconds must be an integer from 0 to 3600/);
