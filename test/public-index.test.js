@@ -99,7 +99,7 @@ test("page renders a leaderboard backed by the API", () => {
   assert.match(html, /id="player-name"/);
   assert.match(html, /id="assist-btn"/);
   assert.doesNotMatch(html, /id="assist-retry"/);
-  assert.match(html, />Submit score<\/button>/);
+  assert.match(html, /id="player-submit" type="submit">Submit oohs<\/button>/);
   assert.doesNotMatch(html, /Scores save to this browser/);
   assert.match(js, /new URLSearchParams\(\{ playerId: state\.player\.playerId \}\)/);
   assert.match(js, /fetch\(getLeaderboardUrl\(\)\)/);
@@ -111,7 +111,7 @@ test("page renders a leaderboard backed by the API", () => {
 });
 
 test("leaderboard players can choose an easier shuffle without bypassing the rickroll", () => {
-  assert.match(html, />Reduce difficulty<\/button>/);
+  assert.match(html, />Dim the drama<\/button>/);
   assert.match(js, /ASSISTED_SHUFFLE_SPARE_MOVES = 1/);
   assert.match(js, /function startAssistedPuzzle\(\) \{/);
   assert.match(js, /if \(!hasLeaderboardUnlock\(\)\) return;/);
@@ -135,7 +135,7 @@ test("browser stores a stable player identity with an editable display name", ()
 test("score submission is owned by the end-game name form", () => {
   const triggerRickrollBody = js.match(/function triggerRickroll\(\) \{([\s\S]*?)\n\}/)?.[1] ?? "";
 
-  assert.match(triggerRickrollBody, /Enter your leaderboard name to submit your score/);
+  assert.match(triggerRickrollBody, /Enter a stage name so the crowd can judge the fall/);
   assert.doesNotMatch(triggerRickrollBody, /submitScore/);
   assert.match(js, /elements\.playerForm\.addEventListener\('submit'/);
 });

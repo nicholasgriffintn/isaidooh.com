@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>isaidooh.com - Brain Teaser Challenge</title>
+  <title>isaidooh.com - Ooh-Ooh Puzzle After Dark</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.youtube.com" />
@@ -18,32 +18,33 @@
 </head>
 <body>
 <div id="app">
-  <div class="logo">isaidooh.com</div>
-  <div class="tagline">The internet's most challenging puzzle</div>
+  <h1 class="logo">isaidooh.com</h1>
+  <p class="tagline">The puzzle is late and acting emotionally unavailable</p>
 
   <div class="intro-card" id="intro-card">
-    <h2>🧩 Sliding Puzzle Challenge</h2>
-    <p>Think you're smart enough to solve this? Thousands of people have tried… and failed. Pick your difficulty and prove yourself.</p>
+    <h2>🧩 Ooh-Ooh Sliding Puzzle</h2>
+    <p>You brought suspicious confidence; this grid brought a wounded ego. Lock eyes with the tiles across a crowded board,
+      pick your difficulty, and try not to hesitate.</p>
     <div class="difficulty">
-      <button class="diff-btn active" data-size="3">Easy (3×3)</button>
-      <button class="diff-btn" data-size="4">Hard (4×4)</button>
+      <button class="diff-btn active" data-size="3">Soft lighting (3×3)</button>
+      <button class="diff-btn" data-size="4">Late-night regret (4×4)</button>
     </div>
-    <button class="start-btn" id="start-btn">Accept the Challenge 🔥</button>
-    <button class="assist-btn" id="assist-btn" type="button" hidden>Reduce difficulty</button>
+    <button class="start-btn" id="start-btn">Start the ooh 🔥</button>
+    <button class="assist-btn" id="assist-btn" type="button" hidden>Dim the drama</button>
     <section class="leaderboard" aria-labelledby="leaderboard-title">
       <div class="leaderboard-header">
-        <h3 id="leaderboard-title">Leaderboard</h3>
-        <button class="leaderboard-refresh" id="leaderboard-refresh" type="button">Refresh</button>
+        <h3 id="leaderboard-title">Ooh board</h3>
+        <button class="leaderboard-refresh" id="leaderboard-refresh" type="button">Encore</button>
       </div>
       <ol class="leaderboard-list" id="leaderboard-list">
-        <li class="leaderboard-empty">Loading scores…</li>
+        <li class="leaderboard-empty">Calling the crowded room…</li>
       </ol>
     </section>
   </div>
 
   <div id="game-area">
     <div class="game-header">
-      <h3>🧩 Solve it!</h3>
+      <h3>🧩 Eyes on the tiles!</h3>
       <div class="stats">
         <span>Moves: <span class="val" id="move-count">0</span></span>
         <span>⏱ <span class="val" id="timer">0s</span></span>
@@ -54,8 +55,8 @@
     </div>
     <div id="puzzle-grid"></div>
     <div class="game-actions">
-      <button class="action-btn" id="shuffle-btn">🔀 Shuffle</button>
-      <button class="action-btn" id="back-btn">← Back</button>
+      <button class="action-btn" id="shuffle-btn">🔀 Re-ooh</button>
+      <button class="action-btn" id="back-btn">← Leave the room</button>
     </div>
   </div>
 </div>
@@ -77,9 +78,9 @@
       <div class="karaoke-next" id="karaoke-next"></div>
     </div>
     <div class="rickroll-panel">
-      <div class="rickroll-sub">you absolute legend, you actually fell for it</div>
+      <div class="rickroll-sub">ooh-ooh, the tiles turned the lights out on you</div>
       <form class="player-form player-form-end" id="player-form">
-        <label for="player-name">Leaderboard name</label>
+        <label for="player-name">Stage name</label>
         <div class="player-name-row">
           <input
             id="player-name"
@@ -89,10 +90,10 @@
             autocomplete="nickname"
             spellcheck="false"
           />
-          <button class="player-save" id="player-submit" type="submit">Submit score</button>
+          <button class="player-save" id="player-submit" type="submit">Submit oohs</button>
         </div>
       </form>
-      <div class="score-result" id="score-result">Enter your leaderboard name to submit your score.</div>
+      <div class="score-result" id="score-result">Enter a stage name so the crowd can judge the fall.</div>
     </div>
   </div>
 </div>

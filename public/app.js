@@ -241,8 +241,8 @@ function triggerRickroll() {
   window.KaraokeLyrics.start(elements.ytFrame);
   hydratePlayerForm();
   elements.playerSubmit.disabled = false;
-  elements.playerSubmit.textContent = 'Submit score';
-  elements.scoreResult.textContent = 'Enter your leaderboard name to submit your score.';
+  elements.playerSubmit.textContent = 'Submit oohs';
+  elements.scoreResult.textContent = 'Enter a stage name so the crowd can judge the fall.';
   updateAssistControls();
   elements.rickroll.classList.add('active');
   state.rickrollClicks = 0;
@@ -267,7 +267,7 @@ function handleRickrollClick(event) {
 }
 
 async function loadLeaderboard() {
-  elements.leaderboardList.innerHTML = '<li class="leaderboard-empty">Loading scores...</li>';
+  elements.leaderboardList.innerHTML = '<li class="leaderboard-empty">Calling the crowded room...</li>';
 
   try {
     const response = await fetch(getLeaderboardUrl());
@@ -280,7 +280,7 @@ async function loadLeaderboard() {
     renderLeaderboard(data.entries);
   } catch {
     elements.leaderboardList.innerHTML =
-      '<li class="leaderboard-empty">The leaderboard is having a moment.</li>';
+      '<li class="leaderboard-empty">The ooh board is trying to hang tough.</li>';
   }
 }
 
@@ -290,8 +290,8 @@ async function submitScore() {
   const player = savePlayerName();
   state.scoreSubmitting = true;
   elements.playerSubmit.disabled = true;
-  elements.playerSubmit.textContent = 'Submitting...';
-  elements.scoreResult.textContent = 'Submitting your legendary failure...';
+  elements.playerSubmit.textContent = 'Sending oohs...';
+  elements.scoreResult.textContent = 'Submitting your late-night puzzle confession...';
 
   try {
     const response = await fetch('/api/leaderboard', {
@@ -312,15 +312,15 @@ async function submitScore() {
     state.scoreSubmitted = true;
     state.playerEntry = data.entry;
     elements.scoreResult.textContent = data.improved
-      ? `${data.entry.displayName} improved to ${data.entry.score} ooh points`
-      : `${data.entry.displayName}'s best is still ${data.entry.score} ooh points`;
-    elements.playerSubmit.textContent = 'Score submitted';
+      ? `${data.entry.displayName} now has ${data.entry.score} oohs and a lightly wounded ego`
+      : `${data.entry.displayName}'s best is still ${data.entry.score} oohs; the heart remains dramatic`;
+    elements.playerSubmit.textContent = 'Oohs submitted';
     updateAssistControls();
     renderLeaderboard(data.entries);
   } catch {
     elements.playerSubmit.disabled = false;
-    elements.playerSubmit.textContent = 'Submit score';
-    elements.scoreResult.textContent = 'Your score escaped before the board noticed.';
+    elements.playerSubmit.textContent = 'Submit oohs';
+    elements.scoreResult.textContent = 'Your score hesitated before the board noticed.';
   } finally {
     state.scoreSubmitting = false;
   }
@@ -329,7 +329,7 @@ async function submitScore() {
 function renderLeaderboard(entries) {
   if (!entries || entries.length === 0) {
     elements.leaderboardList.innerHTML =
-      '<li class="leaderboard-empty">No scores yet. Be the first on the board.</li>';
+      '<li class="leaderboard-empty">No oohs yet. Stare across the board and start something.</li>';
     return;
   }
 
@@ -346,7 +346,7 @@ function renderLeaderboard(entries) {
       detail.className = 'leaderboard-detail';
 
       name.textContent = entry.displayName;
-      score.textContent = `${entry.score} pts`;
+      score.textContent = `${entry.score} oohs`;
       detail.textContent = `${entry.gridSize}x${entry.gridSize} - ${entry.moves} moves - ${entry.seconds}s`;
 
       item.append(name, score, detail);
