@@ -7,6 +7,8 @@ const RICK_TRIGGER_MOVES = {
 
 const DEFAULT_SHUFFLE_MOVES = 200;
 const ASSISTED_SHUFFLE_SPARE_MOVES = 1;
+const MAXIMUM_SCORE_MOVES = 1;
+const MAXIMUM_SCORE_SECONDS = 0;
 const RICKROLL_VIDEO_ID = "Eune-z_Zjww";
 const YT_EMBED = `https://www.youtube.com/embed/${RICKROLL_VIDEO_ID}?autoplay=1&mute=0&playsinline=1&controls=0&loop=1&playlist=${RICKROLL_VIDEO_ID}&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
 
@@ -22,6 +24,7 @@ const state = {
   rickrollClicks: 0,
   scoreSubmitted: false,
   scoreSubmitting: false,
+  scoreOverride: null,
   playerEntry: null,
   assistedShuffle: false,
   player: window.PlayerIdentity.getPlayerIdentity(),
@@ -79,6 +82,7 @@ function savePlayerName() {
 function resetCounters() {
   state.moveCount = 0;
   state.secondsElapsed = 0;
+  state.scoreOverride = null;
   elements.moveCount.textContent = '0';
   elements.timer.textContent = '0s';
 }
@@ -212,6 +216,13 @@ function handleTileClick(idx) {
   elements.moveCount.textContent = state.moveCount;
   renderGrid();
 
+  if (isSolved()) {
+    state.rickrolled = true;
+    state.scoreOverride = { moves: MAXIMUM_SCORE_MOVES, seconds: MAXIMUM_SCORE_SECONDS };
+    triggerRickroll();
+    return;
+  }
+
   if (state.moveCount >= state.triggerMove && !state.rickrolled) {
     state.rickrolled = true;
     triggerRickroll();
@@ -288,6 +299,11 @@ async function submitScore() {
   if (state.scoreSubmitting || state.scoreSubmitted) return;
 
   const player = savePlayerName();
+  const score = state.scoreOverride ?? {
+    moves: state.moveCount,
+    seconds: state.secondsElapsed,
+  };
+
   state.scoreSubmitting = true;
   elements.playerSubmit.disabled = true;
   elements.playerSubmit.textContent = 'Sending oohs...';
@@ -300,8 +316,8 @@ async function submitScore() {
       body: JSON.stringify({
         playerId: player.playerId,
         displayName: player.displayName,
-        moves: state.moveCount,
-        seconds: state.secondsElapsed,
+        moves: score.moves,
+        seconds: score.seconds,
         gridSize: state.gridSize,
       }),
     });

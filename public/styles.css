@@ -89,6 +89,8 @@ body::before {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  max-width: 480px;
+  text-align: center;
 }
 
 .intro-card {
